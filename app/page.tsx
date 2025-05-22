@@ -4,56 +4,61 @@ import { api } from '@/trpc/client';
 import Image from 'next/image';
 
 export default function Home() {
-  // trpcクライアントのクエリフックを使用
-  const { data, isLoading, error } = api.example.getAllExamples.useQuery();
+  const { data, isLoading, error } = api.public.getPublicContent.useQuery();
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={38}
-          priority
-        />
-
-        {/* Exampleデータの表示 */}
-        <div className="w-full">
-          <h2 className="text-xl mb-4">Examples from Database:</h2>
-          {isLoading && <p>データを読み込み中...</p>}
-          {error && <p className="text-red-500">エラーが発生しました: {error.message}</p>}
-          {data && (
-            <div>
-              <p>取得件数: {data.count}</p>
-              <ul className="list-disc pl-5 mt-2">
-                {data.examples.map((example) => (
-                  <li key={example.id} className="mb-2">
-                    <strong>{example.name}</strong> (ID: {example.id})
-                    <br />
-                    <span className="text-sm text-gray-500">
-                      作成日: {new Date(example.createdAt).toLocaleString('ja-JP')}
-                    </span>
-                  </li>
+      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start w-full max-w-4xl">
+        <div className="flex flex-col items-center justify-center w-full">
+          <h1 className="text-3xl font-bold mb-6 text-center">ガチャコンテンツ一覧</h1>
+          
+          {/* ガチャコンテンツの表示 */}
+          <div className="w-full">
+            {isLoading && <p className="text-center">データを読み込み中...</p>}
+            {error && <p className="text-red-500 text-center">エラーが発生しました: {error.message}</p>}
+            {data && data.contents && data.contents.length === 0 && (
+              <p className="text-center text-gray-500">表示できるコンテンツがありません</p>
+            )}
+            {data && data.contents && data.contents.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {data.contents.map((content) => (
+                  <div 
+                    key={content.id} 
+                    className="border border-gray-200 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300"
+                  >
+                    <div className="p-4">
+                      <h2 className="text-xl font-semibold mb-2 line-clamp-1">{content.title}</h2>
+                      <p className="text-gray-600 mb-4 line-clamp-3">{content.content}</p>
+                      
+                      {content.tags && content.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {content.tags.map((tag, index) => (
+                            <span 
+                              key={index} 
+                              className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded-full"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                      
+                      <div className="mt-4 text-xs text-gray-500">
+                        {content.created_at && (
+                          <span>
+                            作成日: {new Date(content.created_at).toLocaleDateString('ja-JP')}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 ))}
-              </ul>
-            </div>
-          )}
+              </div>
+            )}
+          </div>
         </div>
 
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{' '}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">Save and see your changes instantly.</li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
+        <div className="flex gap-4 items-center flex-col sm:flex-row mt-8">
           <a
             className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
             href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
@@ -75,7 +80,7 @@ export default function Home() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            Read our docs
+            ガチャを引く
           </a>
         </div>
       </main>
